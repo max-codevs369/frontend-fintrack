@@ -16,7 +16,7 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(' https://shifty-carey-pentahydroxy.ngrok-free.dev/login', {
+      const res = await fetch('https://shifty-carey-pentahydroxy.ngrok-free.dev/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
