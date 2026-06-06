@@ -32,6 +32,7 @@ export default function Dashboard() {
   const authHeaders = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
+    'ngrok-skip-browser-warning': '1731',
   };
 
   const handleLogout = () => {
