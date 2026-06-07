@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { faUser, faEnvelope, faLock, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
 
 import Input from './ui/Input';
 import Button from './ui/Button';
@@ -77,13 +77,13 @@ export default function Register() {
           
           <Input 
             label="Kata Sandi" 
-            type="password" 
+            type={showPassword ? "text" : "password"}
             placeholder="Minimal 6 karakter" 
             value={form.password} 
             onChange={e => setForm({...form, password: e.target.value})} 
             icon={faLock} 
             rightIcon={showPassword ? faEyeSlash : faEye}
-            onRightIConClick={() => setShowPassword(!showPassword)}
+            onRightIconClick={() => setShowPassword(!showPassword)}
             required
           />
 
