@@ -26,7 +26,7 @@ function formatTanggal(dateStr) {
 
 const KATEGORI = {
   pemasukan: ['Gaji', 'Freelance', 'Investasi', 'Bonus', 'Lainnya'],
-  pengeluaran: ['Makanan', 'Transportasi', 'Belanja', 'Tagihan', 'Kesehatan', 'Hiburan', 'Lainnya'],
+  pengeluaran: ['Makanan', 'Minuman', 'Transportasi', 'Belanja', 'Tagihan', 'Kesehatan', 'Hiburan', 'Lainnya'],
 };
 
 export default function Dashboard() {
