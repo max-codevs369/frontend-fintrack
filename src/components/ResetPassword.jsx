@@ -9,22 +9,28 @@ import AuthLayout from './ui/AuthLayout';
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); 
   const [status, setStatus] = useState({ error: '', success: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatus({ error: '', success: '' });
 
     if (password.length < 6) {
       setStatus({ error: 'Password minimal 6 karakter', success: '' });
-      return; 
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setStatus({ error: 'Konfirmasi password tidak cocok', success: '' });
+      return;
     }
 
     setLoading(true);
-    setStatus({ error: '', success: '' }); 
-
     try {
       const res = await fetch('https://shifty-carey-pentahydroxy.ngrok-free.dev/reset-password', {
         method: 'POST',
@@ -62,6 +68,17 @@ export default function ResetPassword() {
           icon={faLock}
           required
         />
+        
+        <Input 
+          label="Konfirmasi Kata Sandi" 
+          type="password" 
+          placeholder="Ulangi kata sandi baru" 
+          value={confirmPassword} 
+          onChange={e => setConfirmPassword(e.target.value)} 
+          icon={faLock}
+          required
+        />
+
         <div className="pt-2">
           <Button variant="primary" size="lg" isLoading={loading}>
             {loading ? 'Menyimpan...' : 'Simpan Sandi Baru'}

@@ -8,7 +8,7 @@ import Alert from './ui/Alert';
 import AuthLayout from './ui/AuthLayout';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [status, setStatus] = useState({ error: '', success: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,7 +19,12 @@ export default function Register() {
 
     if (form.password.length < 6) {
       setStatus({ error: 'Password minimal 6 karakter', success: '' });
-      return; 
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setStatus({ error: 'Konfirmasi password tidak cocok', success: '' });
+      return;
     }
 
     setLoading(true);
@@ -27,7 +32,11 @@ export default function Register() {
       const res = await fetch('https://shifty-carey-pentahydroxy.ngrok-free.dev/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ 
+          name: form.name, 
+          email: form.email, 
+          password: form.password 
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Registrasi gagal');
@@ -76,6 +85,16 @@ export default function Register() {
             placeholder="Minimal 6 karakter" 
             value={form.password} 
             onChange={e => setForm({...form, password: e.target.value})} 
+            icon={faLock}
+            required
+          />
+
+          <Input 
+            label="Konfirmasi Kata Sandi" 
+            type="password" 
+            placeholder="Ulangi kata sandi Anda" 
+            value={form.confirmPassword} 
+            onChange={e => setForm({...form, confirmPassword: e.target.value})} 
             icon={faLock}
             required
           />
