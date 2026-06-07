@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faLock, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
 
 import Input from './ui/Input';
 import Button from './ui/Button';
@@ -9,6 +9,7 @@ import AuthLayout from './ui/AuthLayout';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -55,11 +56,13 @@ export default function Login() {
         
         <Input 
           label="Kata Sandi" 
-          type="password" 
+          type={showPassword ? "text" : "password"} 
           placeholder="••••••••" 
           value={form.password} 
           onChange={e => setForm({...form, password: e.target.value})} 
           icon={faLock}
+          rightIcon={showPassword ? faEyeSlash : faEye}
+          onRightIconClick={() => setShowPassword(!showPassword)}
           required
         />
         
