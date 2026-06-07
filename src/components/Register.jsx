@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 import Input from './ui/Input';
 import Button from './ui/Button';
@@ -8,7 +8,8 @@ import Alert from './ui/Alert';
 import AuthLayout from './ui/AuthLayout';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: ''});
+  const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState({ error: '', success: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,11 +20,6 @@ export default function Register() {
 
     if (form.password.length < 6) {
       setStatus({ error: 'Password minimal 6 karakter', success: '' });
-      return;
-    }
-
-    if (form.password !== form.confirmPassword) {
-      setStatus({ error: 'Konfirmasi password tidak cocok', success: '' });
       return;
     }
 
@@ -85,17 +81,9 @@ export default function Register() {
             placeholder="Minimal 6 karakter" 
             value={form.password} 
             onChange={e => setForm({...form, password: e.target.value})} 
-            icon={faLock}
-            required
-          />
-
-          <Input 
-            label="Konfirmasi Kata Sandi" 
-            type="password" 
-            placeholder="Ulangi kata sandi Anda" 
-            value={form.confirmPassword} 
-            onChange={e => setForm({...form, confirmPassword: e.target.value})} 
-            icon={faLock}
+            icon={faLock} 
+            rightIcon={showPassword ? faEyeSlash : faEye}
+            onRightIConClick={() => setShowPassword(!showPassword)}
             required
           />
 
