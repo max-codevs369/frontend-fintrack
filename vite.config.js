@@ -17,13 +17,13 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           { 
-            src: '/dompet.png',
+            src: '/dompet-mobile.png',
             sizes: '192x192', 
             type: 'image/png',
             purpose: 'any' 
           },
           { 
-            src: '/dompet.png',
+            src: '/dompet-desktop.png',
             sizes: '512x512', 
             type: 'image/png',
             purpose: 'any' 
