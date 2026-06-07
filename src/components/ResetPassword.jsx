@@ -16,13 +16,22 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (password.length < 6) {
+      setStatus({ error: 'Password minimal 6 karakter', success: '' });
+      return; 
+    }
+
     setLoading(true);
+    setStatus({ error: '', success: '' }); 
+
     try {
       const res = await fetch('https://shifty-carey-pentahydroxy.ngrok-free.dev/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, new_password: password }),
       });
+      
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal mereset password');
 

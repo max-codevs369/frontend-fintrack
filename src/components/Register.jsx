@@ -16,6 +16,12 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus({ error: '', success: '' });
+
+    if (form.password.length < 6) {
+      setStatus({ error: 'Password minimal 6 karakter', success: '' });
+      return; 
+    }
+
     setLoading(true);
     try {
       const res = await fetch('https://shifty-carey-pentahydroxy.ngrok-free.dev/register', {
