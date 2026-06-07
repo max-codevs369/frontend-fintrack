@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { faLock } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
 import Input from './ui/Input';
 import Button from './ui/Button';
 import Alert from './ui/Alert';
@@ -11,7 +11,7 @@ export default function ResetPassword() {
   const token = searchParams.get('token');
   
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); 
+  const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState({ error: '', success: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,11 +22,6 @@ export default function ResetPassword() {
 
     if (password.length < 6) {
       setStatus({ error: 'Password minimal 6 karakter', success: '' });
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setStatus({ error: 'Konfirmasi password tidak cocok', success: '' });
       return;
     }
 
@@ -61,21 +56,13 @@ export default function ResetPassword() {
       <form onSubmit={handleSubmit} className="mt-2">
         <Input 
           label="Kata Sandi Baru" 
-          type="password" 
+          type={showPassword ? "text" : "password"} 
           placeholder="Minimal 6 karakter" 
           value={password} 
           onChange={e => setPassword(e.target.value)} 
           icon={faLock}
-          required
-        />
-        
-        <Input 
-          label="Konfirmasi Kata Sandi" 
-          type="password" 
-          placeholder="Ulangi kata sandi baru" 
-          value={confirmPassword} 
-          onChange={e => setConfirmPassword(e.target.value)} 
-          icon={faLock}
+          rightIcon={showPassword ? faEyeSlash : faEye}
+          onRightIconClick={() => setShowPassword(!showPassword)}
           required
         />
 
