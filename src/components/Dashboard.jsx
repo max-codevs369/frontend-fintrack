@@ -98,13 +98,21 @@ export default function Dashboard() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const confirmDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const executeDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await fetch(`${API}/transactions/${id}`, { method: 'DELETE', headers: authHeaders });
+      await fetch(`${API}/transactions/${deleteTarget}`, { method: 'DELETE', headers: authHeaders });
       fetchData();
     } catch {
-      setError('Gagal menghapus.');
+      setError('Gagal menghapus transaksi.');
+    } finally {
+      setDeleteTarget(null); 
     }
   };
 
@@ -307,6 +315,33 @@ export default function Dashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="h-16 w-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FontAwesomeIcon icon={faTriangleExclamation} className="text-2xl" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900 mb-2">Hapus Transaksi?</h3>
+            <p className="text-sm text-slate-500 mb-6">Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin ingin menghapus data ini?</p>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 py-3 rounded-xl text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={executeDelete}
+                className="flex-1 py-3 rounded-xl text-sm font-bold bg-rose-600 text-white hover:bg-rose-700 transition shadow-lg shadow-rose-200"
+              >
+                Ya, Hapus
+              </button>
+            </div>
           </div>
         </div>
       )}
