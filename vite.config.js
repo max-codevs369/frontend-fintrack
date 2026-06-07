@@ -8,19 +8,22 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
+        id: '/', 
         name: 'Fintrack Money',
         short_name: 'Fintrack',
         description: 'Aplikasi pencatatan keuangan pribadi',
         theme_color: '#ffffff',
+        start_url: '/', 
+        display: 'standalone',
         icons: [
           { 
-            src: 'dompet.png', 
+            src: '/dompet.png',
             sizes: '192x192', 
             type: 'image/png',
-            purpose: 'maskable'
+            purpose: 'any' 
           },
           { 
-            src: 'dompet.png', 
+            src: '/dompet.png',
             sizes: '512x512', 
             type: 'image/png',
             purpose: 'any' 
