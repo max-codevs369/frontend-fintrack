@@ -1,17 +1,58 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-export default function Input({ label, type = 'text', value, onChange, placeholder }) {
+export default function Input({ 
+  label, 
+  type = 'text', 
+  value, 
+  onChange, 
+  placeholder, 
+  icon,       
+  error,      
+  required = false 
+}) {
   return (
-    <div className="mb-4">
-      <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required
-        className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200"
-      />
+    <div className="mb-5 relative">
+      {label && (
+        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">
+          {label} {required && <span className="text-rose-500 ml-0.5">*</span>}
+        </label>
+      )}
+      
+      <div className="relative flex items-center group">
+        {icon && (
+          <div className={`absolute left-4 transition-colors duration-300 z-10 ${
+            error ? 'text-rose-400' : 'text-slate-400 group-focus-within:text-emerald-500'
+          }`}>
+            <FontAwesomeIcon icon={icon} className="text-sm" />
+          </div>
+        )}
+        
+        <input
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          className={`
+            w-full bg-slate-50/50 text-sm text-slate-800 placeholder-slate-400
+            border rounded-xl transition-all duration-300 shadow-sm
+            focus:outline-none focus:bg-white focus:ring-4
+            ${icon ? 'pl-11 pr-4 py-3' : 'px-4 py-3'}
+            ${
+              error
+                ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 bg-rose-50/30'
+                : 'border-slate-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20'
+            }
+          `}
+        />
+      </div>
+
+      {error && (
+        <p className="mt-1.5 text-xs font-semibold text-rose-500 animate-fade-in flex items-center gap-1">
+          <span>⚠️</span> {error}
+        </p>
+      )}
     </div>
   );
 }
