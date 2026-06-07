@@ -64,7 +64,7 @@ export default function Login() {
         />
         
         <div className="flex items-center justify-end mb-6 -mt-2">
-          <a href="#" className="text-xs font-bold text-emerald-600 hover:text-emerald-500 transition-colors">
+          <a href="/forgot-password" className="text-xs font-bold text-emerald-600 hover:text-emerald-500 transition-colors">
             Lupa kata sandi?
           </a>
         </div>
