@@ -221,8 +221,11 @@ export default function Dashboard() {
                     <p className={`text-base font-black ${tx.type === 'pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
                       {tx.type === 'pemasukan' ? '+' : '-'}{formatRupiah(tx.amount)}
                     </p>
-                    <button onClick={() => handleDelete(tx.id)}
-                      className="text-xs font-bold text-slate-300 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 mt-1">
+                    
+                    <button 
+                      onClick={() => handleDelete(tx.id)}
+                      className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-x-2 md:group-hover:translate-x-0 mt-1"
+                    >
                       Hapus
                     </button>
                   </div>
