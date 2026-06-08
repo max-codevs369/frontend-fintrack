@@ -232,6 +232,17 @@ export default function Dashboard() {
                 className="flex items-center gap-2 px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 ml-auto sm:ml-0">
                 <FontAwesomeIcon icon={faPlus} /> Tambah
               </button>
+
+            </div>
+            <div className="relative">
+              <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="Cari transaksi (contoh: Kopi, Gaji, Belanja...)" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
+              />
             </div>
           </div>
 
