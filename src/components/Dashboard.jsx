@@ -50,6 +50,7 @@ export default function Dashboard() {
   const [filterType, setFilterType] = useState('semua');
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterMonth, setFilterMonth] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const token = localStorage.getItem('token');
@@ -254,9 +255,13 @@ export default function Dashboard() {
 
   const filteredTx = transactions.filter(t => {
     const matchType = filterType === 'semua' || t.type === filterType;
+    
     const keyword = searchTerm.toLowerCase();
     const matchSearch = (t.description && t.description.toLowerCase().includes(keyword)) || (t.category && t.category.toLowerCase().includes(keyword));
-    return matchType && matchSearch;
+    
+    const matchMonth = filterMonth === '' || t.date.startsWith(filterMonth);
+    
+    return matchType && matchSearch && matchMonth;
   });
 
   const totalFiltered = filteredTx.length;
@@ -407,6 +412,21 @@ export default function Dashboard() {
               {searchTerm && (
                 <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
                   <FontAwesomeIcon icon={faXmark} className="text-xs" />
+                </button>
+              )}
+
+              <input
+                type="month"
+                value={filterMonth}
+                onChange={(e) => setFilterMonth(e.target.value)}
+                className="h-11 px-4 bg-white border-2 border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 transition-all cursor-pointer hidden sm:block"
+              />
+              {filterMonth && (
+                <button
+                  onClick={() => setFilterMonth('')}
+                  className="h-11 px-4 bg-white border-2 border-rose-200 text-rose-500 hover:bg-rose-50 hover:border-rose-300 font-bold text-xs rounded-2xl transition-all flex-shrink-0"
+                >
+                  Reset
                 </button>
               )}
             </div>
