@@ -42,7 +42,7 @@ export default function Dashboard() {
   const [summary, setSummary] = useState({ total_pemasukan: 0, total_pengeluaran: 0, saldo: 0 });
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [errorModal, setErrorModal] = useState({ show: false, message: '' });
   const [successModal, setSuccessModal] = useState({ show: false, message: '' });
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ type: 'pemasukan', category: 'Gaji', description: '', amount: '', date: new Date().toISOString().split('T')[0] });
@@ -59,6 +59,10 @@ export default function Dashboard() {
     'Authorization': `Bearer ${token}`,
     'ngrok-skip-browser-warning': '17317',
   }), [token]);
+
+  const showError = (message) => {
+    setErrorModal({ show: true, message });
+  };
 
   const showSuccess = (message) => {
     setSuccessModal({ show: true, message });
@@ -86,7 +90,7 @@ export default function Dashboard() {
       setSummary(summaryData);
       setTransactions(txData.transactions || []);
     } catch {
-      setError('Gagal memuat data. Periksa koneksi Anda.');
+      showError('Gagal memuat data. Periksa koneksi Anda.');
     } finally {
       setLoading(false);
     }
@@ -108,20 +112,19 @@ export default function Dashboard() {
     e.preventDefault();
     if (!form.amount || parseFloat(form.amount) <= 0) return;
     setSubmitting(true);
-    setError('');
     try {
       const res = await fetch(`${API}/transactions`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({ ...form, amount: parseFloat(form.amount) }),
       });
-      if (!res.ok) throw new Error('Gagal menyimpan');
+      if (!res.ok) throw new Error();
       setShowModal(false);
       setForm({ type: 'pemasukan', category: 'Gaji', description: '', amount: '', date: new Date().toISOString().split('T')[0] });
       fetchData();
       showSuccess('Transaksi baru berhasil dicatat!');
     } catch {
-      setError('Gagal menambah transaksi.');
+      showError('Gagal menambah transaksi. Silakan coba lagi.');
     } finally {
       setSubmitting(false);
     }
@@ -129,13 +132,12 @@ export default function Dashboard() {
 
   const executeDelete = async () => {
     if (!deleteTarget) return;
-    setError('');
     try {
       await fetch(`${API}/transactions/${deleteTarget}`, { method: 'DELETE', headers: authHeaders });
       fetchData();
       showSuccess('Transaksi berhasil dihapus!');
     } catch {
-      setError('Gagal menghapus transaksi.');
+      showError('Gagal menghapus transaksi. Silakan coba lagi.');
     } finally {
       setDeleteTarget(null);
     }
@@ -143,56 +145,97 @@ export default function Dashboard() {
 
   const handleExportExcel = () => {
     if (filteredTx.length === 0) {
-      setError('Tidak ada data transaksi untuk diekspor.');
-      setTimeout(() => setError(''), 3000);
+      showError('Tidak ada data transaksi untuk diekspor.');
       return;
     }
 
     const tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const totalPemasukan = filteredTx.filter(t => t.type === 'pemasukan').reduce((s, t) => s + t.amount, 0);
+    const totalPengeluaran = filteredTx.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + t.amount, 0);
+    const saldo = totalPemasukan - totalPengeluaran;
 
-    const tableRows = filteredTx.map(tx => {
+    const tableRows = filteredTx.map((tx, i) => {
       const formattedDate = new Date(tx.date).toISOString().split('T')[0];
-      const warnaTeks = tx.type === 'pemasukan' ? '#10b981' : '#f43f5e'; 
-      
+      const isIncome = tx.type === 'pemasukan';
+      const rowBg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+      const amountColor = isIncome ? '#059669' : '#e11d48';
+      const typeBg = isIncome ? '#d1fae5' : '#ffe4e6';
+      const typeColor = isIncome ? '#065f46' : '#9f1239';
       return `
-        <tr>
-          <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${formattedDate}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center; font-weight: bold; color: ${warnaTeks};">${tx.type.toUpperCase()}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 6px;">${tx.category}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 6px;">${tx.description || '-'}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: right;">${tx.amount}</td>
+        <tr style="background-color: ${rowBg};">
+          <td style="border: 1px solid #e2e8f0; padding: 10px 14px; text-align: center; color: #475569; font-size: 12px;">${formattedDate}</td>
+          <td style="border: 1px solid #e2e8f0; padding: 10px 14px; text-align: center;">
+            <span style="background-color: ${typeBg}; color: ${typeColor}; font-weight: 700; font-size: 11px; padding: 3px 10px; border-radius: 20px;">
+              ${isIncome ? 'PEMASUKAN' : 'PENGELUARAN'}
+            </span>
+          </td>
+          <td style="border: 1px solid #e2e8f0; padding: 10px 14px; color: #334155; font-size: 12px;">${tx.category}</td>
+          <td style="border: 1px solid #e2e8f0; padding: 10px 14px; color: #334155; font-size: 12px;">${tx.description || '-'}</td>
+          <td style="border: 1px solid #e2e8f0; padding: 10px 14px; text-align: right; font-weight: 700; color: ${amountColor}; font-size: 12px;">
+            ${isIncome ? '+' : '-'}${new Intl.NumberFormat('id-ID').format(tx.amount)}
+          </td>
         </tr>
       `;
     }).join('');
 
     const excelTemplate = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; }
-          .title { font-size: 16pt; font-weight: bold; color: #0f172a; }
-          .subtitle { font-size: 10pt; color: #64748b; font-style: italic; }
-          th { background-color: #10b981; color: white; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
-        </style>
-      </head>
+      <head><meta charset="utf-8"></head>
       <body>
         <table>
-          <tr><td colspan="5" class="title">LAPORAN KEUANGAN FINTRACK MONEY</td></tr>
-          <tr><td colspan="5" class="subtitle">Dicetak otomatis pada: ${tglCetak}</td></tr>
-          <tr><td colspan="5"></td></tr> <thead>
-            <tr>
-              <th>Tanggal</th>
-              <th>Jenis</th>
-              <th>Kategori</th>
-              <th>Deskripsi</th>
-              <th>Nominal (Rp)</th>
-            </tr>
-          </thead>
-          
-          <tbody>
-            ${tableRows}
-          </tbody>
+          <tr>
+            <td colspan="5" style="padding: 24px 0 4px; text-align: center; font-family: 'Segoe UI', Arial, sans-serif;">
+              <div style="font-size: 20pt; font-weight: 900; color: #0f172a; letter-spacing: -0.5px;">FinTrack</div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="5" style="padding: 0 0 4px; text-align: center; font-family: 'Segoe UI', Arial, sans-serif;">
+              <div style="font-size: 13pt; font-weight: 700; color: #334155;">Laporan Keuangan</div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="5" style="padding: 0 0 20px; text-align: center; font-family: 'Segoe UI', Arial, sans-serif;">
+              <div style="font-size: 10pt; color: #94a3b8;">Dicetak pada ${tglCetak}</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="5" style="padding: 0 0 8px; font-family: 'Segoe UI', Arial, sans-serif;">
+              <table style="width: 100%; border-collapse: separate; border-spacing: 8px;">
+                <tr>
+                  <td style="background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 14px 20px; border-radius: 10px; text-align: center; width: 33%;">
+                    <div style="font-size: 9pt; font-weight: 600; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px;">Total Pemasukan</div>
+                    <div style="font-size: 14pt; font-weight: 900; margin-top: 4px;">Rp ${new Intl.NumberFormat('id-ID').format(totalPemasukan)}</div>
+                  </td>
+                  <td style="background: linear-gradient(135deg, #f43f5e, #ec4899); color: white; padding: 14px 20px; border-radius: 10px; text-align: center; width: 33%;">
+                    <div style="font-size: 9pt; font-weight: 600; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px;">Total Pengeluaran</div>
+                    <div style="font-size: 14pt; font-weight: 900; margin-top: 4px;">Rp ${new Intl.NumberFormat('id-ID').format(totalPengeluaran)}</div>
+                  </td>
+                  <td style="background: ${saldo >= 0 ? 'linear-gradient(135deg, #6366f1, #3b82f6)' : 'linear-gradient(135deg, #f97316, #ef4444)'}; color: white; padding: 14px 20px; border-radius: 10px; text-align: center; width: 33%;">
+                    <div style="font-size: 9pt; font-weight: 600; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px;">Saldo Akhir</div>
+                    <div style="font-size: 14pt; font-weight: 900; margin-top: 4px;">Rp ${new Intl.NumberFormat('id-ID').format(Math.abs(saldo))}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr><td colspan="5" style="padding: 8px 0;"></td></tr>
+
+          <tr>
+            <th style="background-color: #0f172a; color: white; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; font-weight: 700; padding: 12px 14px; text-align: center; border: 1px solid #1e293b; text-transform: uppercase; letter-spacing: 0.5px;">Tanggal</th>
+            <th style="background-color: #0f172a; color: white; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; font-weight: 700; padding: 12px 14px; text-align: center; border: 1px solid #1e293b; text-transform: uppercase; letter-spacing: 0.5px;">Jenis</th>
+            <th style="background-color: #0f172a; color: white; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; font-weight: 700; padding: 12px 14px; text-align: center; border: 1px solid #1e293b; text-transform: uppercase; letter-spacing: 0.5px;">Kategori</th>
+            <th style="background-color: #0f172a; color: white; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; font-weight: 700; padding: 12px 14px; text-align: center; border: 1px solid #1e293b; text-transform: uppercase; letter-spacing: 0.5px;">Deskripsi</th>
+            <th style="background-color: #0f172a; color: white; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; font-weight: 700; padding: 12px 14px; text-align: center; border: 1px solid #1e293b; text-transform: uppercase; letter-spacing: 0.5px;">Nominal (Rp)</th>
+          </tr>
+          ${tableRows}
+          <tr>
+            <td colspan="4" style="border: 1px solid #e2e8f0; padding: 12px 14px; text-align: right; font-family: 'Segoe UI', Arial, sans-serif; font-weight: 700; font-size: 12px; background-color: #f8fafc; color: #0f172a;">SALDO AKHIR</td>
+            <td style="border: 1px solid #e2e8f0; padding: 12px 14px; text-align: right; font-family: 'Segoe UI', Arial, sans-serif; font-weight: 900; font-size: 13px; background-color: #f8fafc; color: ${saldo >= 0 ? '#059669' : '#e11d48'};">
+              ${saldo >= 0 ? '+' : '-'}Rp ${new Intl.NumberFormat('id-ID').format(Math.abs(saldo))}
+            </td>
+          </tr>
         </table>
       </body>
       </html>
@@ -202,14 +245,11 @@ export default function Dashboard() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    
     link.setAttribute('download', `Laporan_FinTrack_${new Date().toISOString().split('T')[0]}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
-    showSuccess('Laporan data keuangan berhasil diunduh!');
-    setTimeout(() => showSuccess(''), 3000);
+    showSuccess('Laporan berhasil diunduh!');
   };
 
   const filteredTx = transactions.filter(t => {
@@ -243,18 +283,6 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-        {error && (
-          <div className="flex items-center gap-3 bg-rose-50 text-rose-700 border border-rose-200 px-5 py-4 rounded-2xl text-sm font-semibold shadow-sm">
-            <div className="h-8 w-8 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <FontAwesomeIcon icon={faTriangleExclamation} />
-            </div>
-            <p>{error}</p>
-            <button onClick={() => setError('')} className="ml-auto text-rose-400 hover:text-rose-600">
-              <FontAwesomeIcon icon={faXmark} />
-            </button>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-6 rounded-3xl shadow-xl shadow-emerald-500/25 overflow-hidden group cursor-default select-none">
@@ -409,35 +437,35 @@ export default function Dashboard() {
               )}
             </div>
           ) : (
-          <div className="grid gap-2.5">
-            {filteredTx.map(tx => (
-              <div key={tx.id} className="flex items-center gap-3 px-3 py-3 sm:px-5 sm:py-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-md transition-all group">
-                <div className={`h-10 w-10 sm:h-11 sm:w-11 rounded-2xl flex items-center justify-center text-sm flex-shrink-0 transition-all group-hover:scale-110 group-hover:rotate-3 ${tx.type === 'pemasukan' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
-                  <FontAwesomeIcon icon={tx.type === 'pemasukan' ? faArrowTrendUp : faArrowTrendDown} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 truncate">{tx.description || tx.category}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${tx.type === 'pemasukan' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                      {tx.category}
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium">· {formatTanggal(tx.date)}</span>
+            <div className="grid gap-2.5">
+              {filteredTx.map(tx => (
+                <div key={tx.id} className="flex items-center gap-3 px-3 py-3 sm:px-5 sm:py-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-md transition-all group">
+                  <div className={`h-10 w-10 sm:h-11 sm:w-11 rounded-2xl flex items-center justify-center text-sm flex-shrink-0 transition-all group-hover:scale-110 group-hover:rotate-3 ${tx.type === 'pemasukan' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                    <FontAwesomeIcon icon={tx.type === 'pemasukan' ? faArrowTrendUp : faArrowTrendDown} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-slate-900 truncate">{tx.description || tx.category}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${tx.type === 'pemasukan' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                        {tx.category}
+                      </span>
+                      <span className="text-xs text-slate-400 font-medium">· {formatTanggal(tx.date)}</span>
+                    </div>
+                  </div>
+                  <div className="text-right flex flex-col items-end gap-1 flex-shrink-0">
+                    <p className={`text-xs sm:text-sm font-black ${tx.type === 'pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {tx.type === 'pemasukan' ? '+' : '-'}{formatRupiah(tx.amount)}
+                    </p>
+                    <button
+                      onClick={() => setDeleteTarget(tx.id)}
+                      className="text-xs font-bold text-slate-300 hover:text-rose-500 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 px-2 py-0.5 rounded-lg hover:bg-rose-50"
+                    >
+                      Hapus
+                    </button>
                   </div>
                 </div>
-                <div className="text-right flex flex-col items-end gap-1 flex-shrink-0">
-                  <p className={`text-xs sm:text-sm font-black ${tx.type === 'pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {tx.type === 'pemasukan' ? '+' : '-'}{formatRupiah(tx.amount)}
-                  </p>
-                  <button
-                    onClick={() => setDeleteTarget(tx.id)}
-                    className="text-xs font-bold text-slate-300 hover:text-rose-500 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 px-2 py-0.5 rounded-lg hover:bg-rose-50"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
           )}
         </div>
       </main>
@@ -454,7 +482,6 @@ export default function Dashboard() {
                 <FontAwesomeIcon icon={faXmark} />
               </button>
             </div>
-
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis Transaksi</label>
@@ -468,7 +495,6 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kategori</label>
@@ -483,7 +509,6 @@ export default function Dashboard() {
                     className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:bg-white focus:border-emerald-400 transition-all" />
                 </div>
               </div>
-
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                   Deskripsi <span className="text-slate-400 font-normal normal-case">(opsional)</span>
@@ -492,7 +517,6 @@ export default function Dashboard() {
                   placeholder="Contoh: Beli kopi senja..."
                   className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:bg-white focus:border-emerald-400 transition-all placeholder:text-slate-300" />
               </div>
-
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jumlah Nominal</label>
                 <div className="relative">
@@ -502,7 +526,6 @@ export default function Dashboard() {
                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl text-xl font-black text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-400 transition-all placeholder:text-slate-300 placeholder:font-bold" />
                 </div>
               </div>
-
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)}
                   className="flex-1 py-3.5 rounded-2xl text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">
@@ -510,9 +533,7 @@ export default function Dashboard() {
                 </button>
                 <button type="submit" disabled={submitting}
                   className="flex-1 flex justify-center items-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-700 disabled:opacity-60 transition-all shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 active:translate-y-0">
-                  {submitting ? (
-                    <><FontAwesomeIcon icon={faCircleNotch} spin /> Menyimpan...</>
-                  ) : 'Simpan Transaksi'}
+                  {submitting ? <><FontAwesomeIcon icon={faCircleNotch} spin /> Menyimpan...</> : 'Simpan Transaksi'}
                 </button>
               </div>
             </form>
@@ -538,6 +559,24 @@ export default function Dashboard() {
                 Ya, Hapus
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {errorModal.show && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-7 text-center">
+            <div className="h-16 w-16 bg-rose-100 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <FontAwesomeIcon icon={faTriangleExclamation} className="text-2xl" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900 mb-2">Terjadi Kesalahan</h3>
+            <p className="text-sm text-slate-500 leading-relaxed mb-6">{errorModal.message}</p>
+            <button
+              onClick={() => setErrorModal({ show: false, message: '' })}
+              className="w-full py-3.5 rounded-2xl text-sm font-bold bg-slate-900 text-white hover:bg-slate-700 transition-all shadow-lg shadow-slate-900/20"
+            >
+              Mengerti
+            </button>
           </div>
         </div>
       )}
