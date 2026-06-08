@@ -208,8 +208,8 @@ export default function Dashboard() {
     link.click();
     document.body.removeChild(link);
     
-    setSuccessMsg('Laporan Excel berhasil diunduh!');
-    setTimeout(() => setSuccessMsg(''), 3000);
+    showSuccess('Laporan data keuangan berhasil diunduh!');
+    setTimeout(() => showSuccess(''), 3000);
   };
 
   const filteredTx = transactions.filter(t => {
