@@ -12,7 +12,7 @@ import {
   faTriangleExclamation, 
   faCircleNotch,
   faScaleBalanced,
-  faCheckCircle ,
+  faCheckCircle,
   faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -37,7 +37,7 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState(''); 
+  const [successModal, setSuccessModal] = useState({ show: false, message: '' });
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ type: 'pemasukan', category: 'Gaji', description: '', amount: '', date: new Date().toISOString().split('T')[0] });
   const [submitting, setSubmitting] = useState(false);
@@ -52,6 +52,11 @@ export default function Dashboard() {
     'Authorization': `Bearer ${token}`,
     'ngrok-skip-browser-warning': '17317',
   }), [token]);
+
+  const showSuccess = (message) => {
+    setSuccessModal({ show: true, message });
+    setTimeout(() => setSuccessModal({ show: false, message: '' }), 2500);
+  };
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token');
@@ -96,14 +101,10 @@ export default function Dashboard() {
         body: JSON.stringify({ ...form, amount: parseFloat(form.amount) }),
       });
       if (!res.ok) throw new Error('Gagal menyimpan');
-      
       setShowModal(false);
       setForm({ type: 'pemasukan', category: 'Gaji', description: '', amount: '', date: new Date().toISOString().split('T')[0] });
       fetchData();
-      
-      setSuccessMsg('Yeay! Transaksi baru berhasil dicatat.');
-      setTimeout(() => setSuccessMsg(''), 3000);
-      
+      showSuccess('Transaksi baru berhasil dicatat!');
     } catch {
       setError('Gagal menambah transaksi.');
     } finally {
@@ -121,23 +122,18 @@ export default function Dashboard() {
     try {
       await fetch(`${API}/transactions/${deleteTarget}`, { method: 'DELETE', headers: authHeaders });
       fetchData();
-      
-      setSuccessMsg('Sip! Transaksi berhasil dihapus.');
-      setTimeout(() => setSuccessMsg(''), 3000);
-      
+      showSuccess('Transaksi berhasil dihapus!');
     } catch {
       setError('Gagal menghapus transaksi.');
     } finally {
-      setDeleteTarget(null); 
+      setDeleteTarget(null);
     }
   };
 
   const filteredTx = transactions.filter(t => {
     const matchType = filterType === 'semua' || t.type === filterType;
-    
     const keyword = searchTerm.toLowerCase();
     const matchSearch = (t.description && t.description.toLowerCase().includes(keyword)) || (t.category && t.category.toLowerCase().includes(keyword));
-    
     return matchType && matchSearch;
   });
 
@@ -159,18 +155,11 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        
+
         {error && (
           <div className="flex items-center gap-3 bg-rose-50 text-rose-700 border border-rose-200 px-5 py-4 rounded-2xl text-sm font-semibold shadow-sm animate-fade-in">
             <FontAwesomeIcon icon={faTriangleExclamation} className="text-lg" />
             <p>{error}</p>
-          </div>
-        )}
-
-        {successMsg && (
-          <div className="flex items-center gap-3 bg-emerald-50 text-emerald-700 border border-emerald-200 px-5 py-4 rounded-2xl text-sm font-semibold shadow-sm animate-fade-in">
-            <FontAwesomeIcon icon={faCheckCircle} className="text-lg" />
-            <p>{successMsg}</p>
           </div>
         )}
 
@@ -206,10 +195,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
-            <h2 className="text-xl font-extrabold text-slate-900">Riwayat Transaksi</h2>
-          </div>
+        <div className="space-y-4">
+          <h2 className="text-xl font-extrabold text-slate-900">Riwayat Transaksi</h2>
 
           <div className="flex items-center justify-between gap-3">
             <div className="flex bg-slate-200/50 p-1 rounded-xl">
@@ -228,9 +215,9 @@ export default function Dashboard() {
 
           <div className="relative">
             <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Cari transaksi (contoh: Kopi, Gaji, Belanja...)" 
+            <input
+              type="text"
+              placeholder="Cari transaksi (contoh: Kopi, Gaji, Belanja...)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
@@ -263,7 +250,7 @@ export default function Dashboard() {
                     <p className={`text-base font-black ${tx.type === 'pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
                       {tx.type === 'pemasukan' ? '+' : '-'}{formatRupiah(tx.amount)}
                     </p>
-                    <button 
+                    <button
                       onClick={() => confirmDelete(tx.id)}
                       className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-x-2 md:group-hover:translate-x-0 mt-1"
                     >
@@ -359,19 +346,31 @@ export default function Dashboard() {
             <h3 className="text-lg font-black text-slate-900 mb-2">Hapus Transaksi?</h3>
             <p className="text-sm text-slate-500 mb-6">Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin ingin menghapus data ini?</p>
             <div className="flex gap-3">
-              <button 
+              <button
                 onClick={() => setDeleteTarget(null)}
                 className="flex-1 py-3 rounded-xl text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
               >
                 Batal
               </button>
-              <button 
+              <button
                 onClick={executeDelete}
                 className="flex-1 py-3 rounded-xl text-sm font-bold bg-rose-600 text-white hover:bg-rose-700 transition shadow-lg shadow-rose-200"
               >
                 Ya, Hapus
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {successModal.show && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xs p-6 text-center pointer-events-auto animate-fade-in">
+            <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FontAwesomeIcon icon={faCheckCircle} className="text-3xl" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900 mb-1">Berhasil!</h3>
+            <p className="text-sm text-slate-500">{successModal.message}</p>
           </div>
         </div>
       )}
