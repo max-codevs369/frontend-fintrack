@@ -211,12 +211,6 @@ export default function Dashboard() {
             <h2 className="text-xl font-extrabold text-slate-900">Riwayat Transaksi</h2>
             <div className="flex items-center gap-3 flex-wrap">
               <div className="flex bg-slate-200/50 p-1 rounded-xl">
-                {['semua', 'pemasukan', 'pengeluaran'].map(f => (
-                  <button key={f} onClick={() => setFilterType(f)}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${filterType === f ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-                    {f}
-                  </button>
-                ))}
                 <div className="relative">
                   <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input 
@@ -227,6 +221,12 @@ export default function Dashboard() {
                     className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
                   />
                 </div>
+                {['semua', 'pemasukan', 'pengeluaran'].map(f => (
+                  <button key={f} onClick={() => setFilterType(f)}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${filterType === f ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                    {f}
+                  </button>
+                ))}
               </div>
               <button onClick={() => setShowModal(true)}
                 className="flex items-center gap-2 px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 ml-auto sm:ml-0">
