@@ -12,7 +12,8 @@ import {
   faTriangleExclamation, 
   faCircleNotch,
   faScaleBalanced,
-  faCheckCircle 
+  faCheckCircle ,
+  faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons';
 
 const API = 'https://shifty-carey-pentahydroxy.ngrok-free.dev';
@@ -41,6 +42,7 @@ export default function Dashboard() {
   const [form, setForm] = useState({ type: 'pemasukan', category: 'Gaji', description: '', amount: '', date: new Date().toISOString().split('T')[0] });
   const [submitting, setSubmitting] = useState(false);
   const [filterType, setFilterType] = useState('semua');
+  const [searchTerm, setSearchTerm] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const token = localStorage.getItem('token');
@@ -130,7 +132,14 @@ export default function Dashboard() {
     }
   };
 
-  const filteredTx = filterType === 'semua' ? transactions : transactions.filter(t => t.type === filterType);
+  const filteredTx = transactions.filter(t => {
+    const matchType = filterType === 'semua' || t.type === filterType;
+    
+    const keyword = searchTerm.toLowerCase();
+    const matchSearch = (t.description && t.description.toLowerCase().includes(keyword)) || (t.category && t.category.toLowerCase().includes(keyword));
+    
+    return matchType && matchSearch;
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-12">
@@ -208,6 +217,16 @@ export default function Dashboard() {
                     {f}
                   </button>
                 ))}
+                <div className="relative">
+                  <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input 
+                    type="text" 
+                    placeholder="Cari transaksi (contoh: Kopi, Gaji, Belanja...)" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
+                  />
+                </div>
               </div>
               <button onClick={() => setShowModal(true)}
                 className="flex items-center gap-2 px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 ml-auto sm:ml-0">
