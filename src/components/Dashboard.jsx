@@ -11,7 +11,8 @@ import {
   faBoxOpen, 
   faTriangleExclamation, 
   faCircleNotch,
-  faScaleBalanced
+  faScaleBalanced,
+  faCheckCircle 
 } from '@fortawesome/free-solid-svg-icons';
 
 const API = 'https://shifty-carey-pentahydroxy.ngrok-free.dev';
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState(''); 
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ type: 'pemasukan', category: 'Gaji', description: '', amount: '', date: new Date().toISOString().split('T')[0] });
   const [submitting, setSubmitting] = useState(false);
@@ -84,6 +86,7 @@ export default function Dashboard() {
     e.preventDefault();
     if (!form.amount || parseFloat(form.amount) <= 0) return;
     setSubmitting(true);
+    setError('');
     try {
       const res = await fetch(`${API}/transactions`, {
         method: 'POST',
@@ -91,9 +94,14 @@ export default function Dashboard() {
         body: JSON.stringify({ ...form, amount: parseFloat(form.amount) }),
       });
       if (!res.ok) throw new Error('Gagal menyimpan');
+      
       setShowModal(false);
       setForm({ type: 'pemasukan', category: 'Gaji', description: '', amount: '', date: new Date().toISOString().split('T')[0] });
       fetchData();
+      
+      setSuccessMsg('Yeay! Transaksi baru berhasil dicatat.');
+      setTimeout(() => setSuccessMsg(''), 3000);
+      
     } catch {
       setError('Gagal menambah transaksi.');
     } finally {
@@ -107,9 +115,14 @@ export default function Dashboard() {
 
   const executeDelete = async () => {
     if (!deleteTarget) return;
+    setError('');
     try {
       await fetch(`${API}/transactions/${deleteTarget}`, { method: 'DELETE', headers: authHeaders });
       fetchData();
+      
+      setSuccessMsg('Sip! Transaksi berhasil dihapus.');
+      setTimeout(() => setSuccessMsg(''), 3000);
+      
     } catch {
       setError('Gagal menghapus transaksi.');
     } finally {
@@ -137,10 +150,18 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        
         {error && (
           <div className="flex items-center gap-3 bg-rose-50 text-rose-700 border border-rose-200 px-5 py-4 rounded-2xl text-sm font-semibold shadow-sm animate-fade-in">
             <FontAwesomeIcon icon={faTriangleExclamation} className="text-lg" />
             <p>{error}</p>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="flex items-center gap-3 bg-emerald-50 text-emerald-700 border border-emerald-200 px-5 py-4 rounded-2xl text-sm font-semibold shadow-sm animate-fade-in">
+            <FontAwesomeIcon icon={faCheckCircle} className="text-lg" />
+            <p>{successMsg}</p>
           </div>
         )}
 
