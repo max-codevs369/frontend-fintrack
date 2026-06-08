@@ -141,40 +141,74 @@ export default function Dashboard() {
     }
   };
 
-  const handleExportCSV = () => {
+  const handleExportExcel = () => {
     if (filteredTx.length === 0) {
       setError('Tidak ada data transaksi untuk diekspor.');
       setTimeout(() => setError(''), 3000);
       return;
     }
 
-    const headers = ['Tanggal', 'Jenis', 'Kategori', 'Deskripsi', 'Nominal (Rp)'];
+    const tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    const csvRows = filteredTx.map(tx => {
+    const tableRows = filteredTx.map(tx => {
       const formattedDate = new Date(tx.date).toISOString().split('T')[0];
-      const safeDescription = `"${tx.description || ''}"`; 
+      const warnaTeks = tx.type === 'pemasukan' ? '#10b981' : '#f43f5e'; 
       
-      return [
-        formattedDate,
-        tx.type,
-        tx.category,
-        safeDescription,
-        tx.amount
-      ].join(',');
-    });
+      return `
+        <tr>
+          <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${formattedDate}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center; font-weight: bold; color: ${warnaTeks};">${tx.type.toUpperCase()}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 6px;">${tx.category}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 6px;">${tx.description || '-'}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: right;">${tx.amount}</td>
+        </tr>
+      `;
+    }).join('');
 
-    const csvContent = [headers.join(','), ...csvRows].join('\n');
+    const excelTemplate = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; }
+          .title { font-size: 16pt; font-weight: bold; color: #0f172a; }
+          .subtitle { font-size: 10pt; color: #64748b; font-style: italic; }
+          th { background-color: #10b981; color: white; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <table>
+          <tr><td colspan="5" class="title">LAPORAN KEUANGAN FINTRACK MONEY</td></tr>
+          <tr><td colspan="5" class="subtitle">Dicetak otomatis pada: ${tglCetak}</td></tr>
+          <tr><td colspan="5"></td></tr> <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Jenis</th>
+              <th>Kategori</th>
+              <th>Deskripsi</th>
+              <th>Nominal (Rp)</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `Laporan_FinTrack_${new Date().toISOString().split('T')[0]}.csv`);
+    
+    link.setAttribute('download', `Laporan_FinTrack_${new Date().toISOString().split('T')[0]}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
-    setSuccessMsg('Laporan berhasil diunduh!');
+    setSuccessMsg('Laporan Excel berhasil diunduh!');
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 
@@ -282,18 +316,22 @@ export default function Dashboard() {
                 </p>
               )}
             </div>
-            <button 
-                onClick={handleExportCSV}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-bold rounded-xl transition-all shadow-sm hover:shadow-md">
-                <FontAwesomeIcon icon={faFileExport} className="text-emerald-600" /> Export CSV
-            </button>
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-700 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <FontAwesomeIcon icon={faPlus} />
-              <span>Tambah</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleExportExcel}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 text-sm font-bold rounded-2xl transition-all shadow-sm hover:shadow-md"
+              >
+                <FontAwesomeIcon icon={faFileExport} className="text-emerald-600" />
+                <span className="hidden sm:inline">Ekspor</span>
+              </button>
+              <button
+                onClick={() => setShowModal(true)}
+                className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-700 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <FontAwesomeIcon icon={faPlus} />
+                <span className="hidden sm:inline">Tambah</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-3">
