@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
+  faFilter,
   faWallet, 
   faRightFromBracket, 
   faArrowTrendUp, 
@@ -42,6 +43,7 @@ export default function Dashboard() {
   const [form, setForm] = useState({ type: 'pemasukan', category: 'Gaji', description: '', amount: '', date: new Date().toISOString().split('T')[0] });
   const [submitting, setSubmitting] = useState(false);
   const [filterType, setFilterType] = useState('semua');
+  const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -199,13 +201,32 @@ export default function Dashboard() {
           <h2 className="text-xl font-extrabold text-slate-900">Riwayat Transaksi</h2>
 
           <div className="flex items-center justify-between gap-3">
-            <div className="flex bg-slate-200/50 p-1 rounded-xl">
-              {['semua', 'pemasukan', 'pengeluaran'].map(f => (
-                <button key={f} onClick={() => setFilterType(f)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${filterType === f ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-                  {f}
-                </button>
-              ))}
+            <div className="relative">
+              <button
+                onClick={() => setShowFilter(!showFilter)}
+                className={`sm:hidden flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${filterType !== 'semua' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-200/50 text-slate-600 border-transparent'}`}
+              >
+                <FontAwesomeIcon icon={faFilter} />
+                <span className="capitalize">{filterType}</span>
+              </button>
+
+              <div className={`sm:hidden absolute top-11 left-0 z-10 bg-white border border-slate-200 rounded-2xl shadow-xl p-1.5 flex flex-col gap-1 min-w-36 transition-all ${showFilter ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
+                {['semua', 'pemasukan', 'pengeluaran'].map(f => (
+                  <button key={f} onClick={() => { setFilterType(f); setShowFilter(false); }}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all capitalize text-left ${filterType === f ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+
+              <div className="hidden sm:flex bg-slate-200/50 p-1 rounded-xl">
+                {['semua', 'pemasukan', 'pengeluaran'].map(f => (
+                  <button key={f} onClick={() => setFilterType(f)}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${filterType === f ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                    {f}
+                  </button>
+                ))}
+              </div>
             </div>
             <button onClick={() => setShowModal(true)}
               className="flex items-center gap-2 px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
