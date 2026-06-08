@@ -328,35 +328,35 @@ export default function Dashboard() {
               )}
             </div>
           ) : (
-            <div className="grid gap-2.5">
-              {filteredTx.map(tx => (
-                <div key={tx.id} className="flex items-center gap-4 px-5 py-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-md transition-all group">
-                  <div className={`h-11 w-11 rounded-2xl flex items-center justify-center text-sm flex-shrink-0 transition-all group-hover:scale-110 group-hover:rotate-3 ${tx.type === 'pemasukan' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
-                    <FontAwesomeIcon icon={tx.type === 'pemasukan' ? faArrowTrendUp : faArrowTrendDown} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-slate-900 truncate">{tx.description || tx.category}</p>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${tx.type === 'pemasukan' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                        {tx.category}
-                      </span>
-                      <span className="text-xs text-slate-400 font-medium">· {formatTanggal(tx.date)}</span>
-                    </div>
-                  </div>
-                  <div className="text-right flex flex-col items-end gap-1">
-                    <p className={`text-sm font-black ${tx.type === 'pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {tx.type === 'pemasukan' ? '+' : '-'}{formatRupiah(tx.amount)}
-                    </p>
-                    <button
-                      onClick={() => setDeleteTarget(tx.id)}
-                      className="text-xs font-bold text-slate-300 hover:text-rose-500 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 px-2 py-0.5 rounded-lg hover:bg-rose-50"
-                    >
-                      Hapus
-                    </button>
+          <div className="grid gap-2.5">
+            {filteredTx.map(tx => (
+              <div key={tx.id} className="flex items-center gap-3 px-3 py-3 sm:px-5 sm:py-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-md transition-all group">
+                <div className={`h-10 w-10 sm:h-11 sm:w-11 rounded-2xl flex items-center justify-center text-sm flex-shrink-0 transition-all group-hover:scale-110 group-hover:rotate-3 ${tx.type === 'pemasukan' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                  <FontAwesomeIcon icon={tx.type === 'pemasukan' ? faArrowTrendUp : faArrowTrendDown} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-slate-900 truncate">{tx.description || tx.category}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${tx.type === 'pemasukan' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                      {tx.category}
+                    </span>
+                    <span className="text-xs text-slate-400 font-medium">· {formatTanggal(tx.date)}</span>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="text-right flex flex-col items-end gap-1 flex-shrink-0">
+                  <p className={`text-xs sm:text-sm font-black ${tx.type === 'pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {tx.type === 'pemasukan' ? '+' : '-'}{formatRupiah(tx.amount)}
+                  </p>
+                  <button
+                    onClick={() => setDeleteTarget(tx.id)}
+                    className="text-xs font-bold text-slate-300 hover:text-rose-500 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 px-2 py-0.5 rounded-lg hover:bg-rose-50"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
           )}
         </div>
       </main>
