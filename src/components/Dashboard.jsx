@@ -9,10 +9,9 @@ import BottomNav from './dashboard/BottomNav';
 
 import SummaryCards from './dashboard/SummaryCards';
 import { DashboardView, ChartView, BudgetView, WalletsView } from './dashboard/TableViews';
-import ImportView from './dashboard/ImportView';
 
 import {
-  TransactionModal, WalletModal, BudgetModal,
+  TransactionModal, BudgetModal,
   DeleteConfirmModal, ErrorModal, SuccessToast, FilterModal,
 } from './dashboard/Modals';
 
@@ -81,7 +80,6 @@ export default function Dashboard() {
 
   const [showModal, setShowModal]             = useState(false);
   const [submitting, setSubmitting]           = useState(false);
-  const [showWalletModal, setShowWalletModal] = useState(false);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [deleteTarget, setDeleteTarget]       = useState(null);
@@ -245,19 +243,6 @@ export default function Dashboard() {
       fetchData(); showSuccess('Transaksi dihapus.');
     } catch { showError('Gagal menghapus.'); }
     finally { setDeleteTarget(null); }
-  };
-
-  const handleSaveWallet = () => {
-    if (!walletForm.name.trim()) return;
-    if (editingWallet) {
-      setWallets(prev => prev.map(w => w.id === editingWallet ? { ...w, ...walletForm, balance: parseFloat(walletForm.balance) || 0 } : w));
-      showSuccess('Dompet diperbarui!');
-    } else {
-      setWallets(prev => [...prev, { id: `w${Date.now()}`, ...walletForm, balance: parseFloat(walletForm.balance) || 0 }]);
-      showSuccess('Dompet ditambahkan!');
-    }
-    setShowWalletModal(false); setEditingWallet(null);
-    setWalletForm({ name: '', type: 'cash', color: '#10b981', balance: '' });
   };
 
   const handleSaveBudget = () => {
@@ -428,35 +413,6 @@ export default function Dashboard() {
                 setShowBudgetModal={setShowBudgetModal}
               />
             )}
-            {activeTab === 'wallets' && (
-              <WalletsView
-                wallets={wallets}
-                walletBalances={walletBalances}
-                transactions={transactions}
-                setWallets={setWallets}
-                setEditingWallet={setEditingWallet}
-                setWalletForm={setWalletForm}
-                setShowWalletModal={setShowWalletModal}
-              />
-            )}
-            {activeTab === 'import' && (
-              <ImportView
-                importStep={importStep}       setImportStep={setImportStep}
-                importBank={importBank}       setImportBank={setImportBank}
-                importFile={importFile}       setImportFile={setImportFile}
-                importCSV={importCSV}         setImportCSV={setImportCSV}
-                importMapping={importMapping} setImportMapping={setImportMapping}
-                importPreview={importPreview} setImportPreview={setImportPreview}
-                importWalletId={importWalletId} setImportWalletId={setImportWalletId}
-                importLoading={importLoading}
-                wallets={wallets}
-                handleFileUpload={handleFileUpload}
-                handleBuildPreview={handleBuildPreview}
-                handleImportSubmit={handleImportSubmit}
-                resetImport={resetImport}
-                navigateTo={navigateTo}
-              />
-            )}
           </div>
         </main>
       </div>
@@ -481,14 +437,6 @@ export default function Dashboard() {
         wallets={wallets}
         onSubmit={handleSubmit}
         submitting={submitting}
-      />
-      <WalletModal
-        show={showWalletModal}
-        onClose={() => setShowWalletModal(false)}
-        walletForm={walletForm}
-        setWalletForm={setWalletForm}
-        editingWallet={editingWallet}
-        onSave={handleSaveWallet}
       />
       <BudgetModal
         show={showBudgetModal}

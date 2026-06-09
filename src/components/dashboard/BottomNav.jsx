@@ -1,14 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faHouse, faChartPie, faBullseye, faWallet, faFileImport,
+  faHouse, faChartPie, faBullseye, 
 } from '@fortawesome/free-solid-svg-icons';
 
 const TABS = [
   { id: 'dashboard', label: 'Beranda',  icon: faHouse },
   { id: 'chart',     label: 'Grafik',   icon: faChartPie },
   { id: 'budget',    label: 'Anggaran', icon: faBullseye },
-  { id: 'wallets',   label: 'Dompet',   icon: faWallet },
-  { id: 'import',    label: 'Import',   icon: faFileImport },
 ];
 
 export default function BottomNav({ activeTab, navigateTo }) {
