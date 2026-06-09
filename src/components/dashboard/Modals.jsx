@@ -59,25 +59,7 @@ export function TransactionModal({ show, onClose, form, setForm, wallets, onSubm
                 className="w-full px-3.5 py-2.5 bg-slate-50 border-2 border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-400 transition-all" />
             </div>
           </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Dari / Ke Dompet</label>
-            <div className="grid grid-cols-2 gap-2">
-              {wallets.map(w => (
-                <button key={w.id} type="button" onClick={() => setForm({ ...form, wallet_id: w.id })}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-xs font-bold transition-all ${
-                    form.wallet_id === w.id ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'
-                  }`}>
-                  <div className="h-6 w-6 rounded-lg flex items-center justify-center text-white text-[9px] font-black flex-shrink-0" style={{ background: w.color }}>
-                    {w.name.slice(0,2).toUpperCase()}
-                  </div>
-                  <span className="truncate">{w.name}</span>
-                  {form.wallet_id === w.id && <FontAwesomeIcon icon={faCheck} className="ml-auto text-emerald-500 flex-shrink-0 text-[10px]" />}
-                </button>
-              ))}
-            </div>
-          </div>
-
+          
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
               Deskripsi <span className="text-slate-400 font-normal normal-case">(opsional)</span>
