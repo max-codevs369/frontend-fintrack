@@ -46,7 +46,7 @@ export default function Header({
             </button>
           </div>
 
-          <div className="relative" ref={userMenuRef}>
+          <div className="relative" ref={userMenuRef} data-user-menu>
             <button
               onClick={() => setUserMenuOpen(o => !o)}
               className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl hover:bg-slate-100 transition-all"
