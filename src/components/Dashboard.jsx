@@ -381,7 +381,7 @@ export default function Dashboard() {
       <div className="flex">
         <Sidebar activeTab={activeTab} navigateTo={navigateTo} handleLogout={handleLogout} />
 
-        <main className="flex-1 min-w-0 px-4 sm:px-6 pt-5 pb-24 md:pb-10 max-w-3xl mx-auto md:mx-0 w-full">
+        <main className="flex-1 min-w-0 px-6 pt-5 pb-24 md:pb-10 w-full">
           <SummaryCards
             loading={loading}
             dynamicPemasukan={dynamicPemasukan}
