@@ -41,8 +41,8 @@ export function DashboardView({
   setDeleteTarget,
 }) {
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+    <div className="space-y-5">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {[
           { label: 'Catat',  icon: faPlus,       color: 'bg-emerald-500', action: () => setShowModal(true) },
           { label: 'Grafik', icon: faChartPie,    color: 'bg-amber-500',   action: () => navigateTo('chart') },
