@@ -80,7 +80,10 @@ export default function Header({
                 </div>
                 <div className="p-2">
                   <button
-                    onClick={handleLogout}
+                    onClick={() => {
+                    setUserMenuOpen(false);
+                    handleLogout();
+                  }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all text-left"
                   >
                     <div className="h-7 w-7 bg-rose-100 rounded-lg flex items-center justify-center text-xs">
