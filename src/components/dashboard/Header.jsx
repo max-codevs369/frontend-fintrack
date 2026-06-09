@@ -37,6 +37,15 @@ export default function Header({
             <FontAwesomeIcon icon={faPlus} /> Catat
           </button>
 
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-200"
+            >
+              <FontAwesomeIcon icon={faPlus} /> Catat
+            </button>
+          </div>
+
           <div className="relative" ref={userMenuRef}>
             <button
               onClick={() => setUserMenuOpen(o => !o)}
