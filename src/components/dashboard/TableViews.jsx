@@ -45,7 +45,6 @@ export function DashboardView({
       <div className="grid grid-cols-4 gap-2 sm:gap-3">
         {[
           { label: 'Catat',  icon: faPlus,       color: 'bg-emerald-500', action: () => setShowModal(true) },
-          { label: 'Import', icon: faFileImport,  color: 'bg-indigo-500',  action: () => navigateTo('import') },
           { label: 'Grafik', icon: faChartPie,    color: 'bg-amber-500',   action: () => navigateTo('chart') },
           { label: 'Ekspor', icon: faFileExport,  color: 'bg-slate-600',   action: handleExport },
         ].map(a => (
@@ -58,31 +57,6 @@ export function DashboardView({
           </button>
         ))}
       </div>
-
-      {walletBalances.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-2.5">
-            <h3 className="text-sm font-extrabold text-slate-800">Dompet Saya</h3>
-            <button onClick={() => navigateTo('wallets')} className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-              Lihat semua <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
-            </button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
-            {walletBalances.map(w => (
-              <div key={w.id} className="flex-shrink-0 bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 min-w-[150px]">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: w.color }} />
-                  <p className="text-xs font-bold text-slate-700 truncate">{w.name}</p>
-                </div>
-                <p className={`text-sm font-black ${w.balance >= 0 ? 'text-slate-900' : 'text-rose-600'}`}>
-                  {formatRupiah(w.balance)}
-                </p>
-                <p className="text-[10px] text-slate-400 mt-0.5 font-medium">{walletTypeLabel(w.type)}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
