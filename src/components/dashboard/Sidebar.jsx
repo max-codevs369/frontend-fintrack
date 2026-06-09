@@ -1,19 +1,15 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faRightFromBracket,
-  faWallet,
   faHouse,
   faChartPie,
   faBullseye,
-  faFileImport,
 } from '@fortawesome/free-solid-svg-icons';
 
 const TABS = [
   { id: 'dashboard', label: 'Beranda',  icon: faHouse },
   { id: 'chart',     label: 'Grafik',   icon: faChartPie },
   { id: 'budget',    label: 'Anggaran', icon: faBullseye },
-  { id: 'wallets',   label: 'Dompet',   icon: faWallet },
-  { id: 'import',    label: 'Import',   icon: faFileImport },
 ];
 
 export default function Sidebar({ activeTab, navigateTo, handleLogout }) {
