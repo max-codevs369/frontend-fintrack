@@ -46,7 +46,7 @@ const IMPORT_TEMPLATES = [
 ];
 
 const KATEGORI = {
-  pemasukan: ['Gaji', 'Freelance', 'Investasi', 'Bonus', 'Lainnya'],
+  pemasukan: ['Gaji', 'Uang Bulanan' ,'Freelance', 'Investasi', 'Bonus', 'Lainnya'],
   pengeluaran: ['Makanan', 'Minuman', 'Transportasi', 'Belanja', 'Tagihan', 'Kesehatan', 'Hiburan', 'Lainnya'],
 };
 
